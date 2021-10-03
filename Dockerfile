@@ -6,7 +6,7 @@ ENV ARTIFACTS_DIR=/artifacts
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
 # Copy composer.lock and composer.json
-COPY composer.lock composer.json /sw6
+COPY composer.lock composer.json $PROJECT_ROOT/
 
 # install all dependencies
 RUN apk --no-cache add \
