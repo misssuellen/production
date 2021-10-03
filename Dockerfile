@@ -44,7 +44,7 @@ RUN mkdir -p /var/{lib,tmp,log}/nginx \
 WORKDIR $PROJECT_ROOT
 
 RUN mkdir -p $PROJECT_ROOT/var/cache \
-    chown -R sw6.sw6 $PROJECT_ROOT
+    && chown -R sw6.sw6 $PROJECT_ROOT
 
 USER sw6
 
