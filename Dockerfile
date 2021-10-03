@@ -18,6 +18,9 @@ RUN apk --no-cache add \
     && rm /etc/nginx/conf.d/default.conf \
     && mkdir -p /var/cache/composer
 
+RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+RUN alias composer='php /usr/bin/composer'
+
 # Copy system configs
 COPY config/etc /etc
 
