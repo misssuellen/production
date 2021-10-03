@@ -5,6 +5,10 @@ ENV PROJECT_ROOT=/sw6
 ENV ARTIFACTS_DIR=/artifacts
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
+# Copy composer.lock and composer.json
+COPY composer.lock composer.json /sw6
+
+# install all dependencies
 RUN apk --no-cache add \
         nginx supervisor curl zip rsync xz coreutils \
         php7 php7-fpm \
@@ -14,15 +18,25 @@ RUN apk --no-cache add \
         php7-session php7-simplexml php7-tokenizer php7-xml php7-xmlreader php7-xmlwriter \
         php7-zip php7-zlib php7-phar php7-opcache php7-sodium git \
         gnu-libiconv \
-    && adduser -u 1000 -D -h $PROJECT_ROOT sw6 sw6 \
     && rm /etc/nginx/conf.d/default.conf \
     && mkdir -p /var/cache/composer
 
-RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
-RUN alias composer='php /usr/bin/composer'
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy system configs
 COPY config/etc /etc
+
+# Add user for shopware application
+RUN adduser -u 1000 -D -h $PROJECT_ROOT sw6 sw6
+# Copy existing application directory contents
+COPY . $PROJECT_ROOT
+
+# Copy existing application directory permissions
+COPY --chown=sw6:sw6 . $PROJECT_ROOT
 
 # Make sure files/folders needed by the processes are accessible when they run under the sw6
 RUN mkdir -p /var/{lib,tmp,log}/nginx \
@@ -33,7 +47,7 @@ WORKDIR $PROJECT_ROOT
 
 USER sw6
 
-ADD --chown=sw6 . .
+#ADD --chown=sw6 . .
 
 RUN composer install
 
