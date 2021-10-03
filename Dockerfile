@@ -49,6 +49,8 @@ USER sw6
 
 RUN composer install
 
+RUN chown -R 1000 $PROJECT_ROOT
+
 RUN APP_URL="http://localhost" DATABASE_URL="" bin/console assets:install \
     && rm -Rf var/cache \
     && touch install.lock \
